@@ -27,9 +27,10 @@ open class GameObject(
 
     fun update() {
         modelMatrix.set()
-        .scale(scale)
-        .rotate(roll)
-        .translate(position)
-        .invert()
+                .scale(scale)
+                .rotate(roll)
+                .translate(position)
     }
+
+
 }

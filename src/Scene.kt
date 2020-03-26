@@ -1,5 +1,9 @@
 
+import gameobjects.Background
+import gameobjects.MeteorBig
 import gameobjects.SpaceShipAvatar
+import meshes.BackgroundMesh
+import meshes.MeteorBigMesh1
 import meshes.SpaceShipMesh
 import org.w3c.dom.HTMLCanvasElement
 import vision.gears.webglmath.UniformProvider
@@ -10,11 +14,22 @@ class Scene (
   val gl : WebGL2RenderingContext) : UniformProvider("scene") {
 
   val vsTrafo = Shader(gl, GL.VERTEX_SHADER, "shaders/trafo-vs.glsl")
+  val vsBackground = Shader(gl, GL.VERTEX_SHADER, "shaders/background-vs.glsl")
+
   val fsTextured = Shader(gl, GL.FRAGMENT_SHADER, "shaders/textured-fs.glsl")
+  val fsBackground = Shader(gl, GL.FRAGMENT_SHADER, "shaders/background-fs.glsl")
+
   val texturedProgram = Program(gl, vsTrafo, fsTextured)
+  val backgroundProgram = Program(gl, vsBackground, fsBackground)
+
   val quadGeometry = TexturedQuadGeometry(gl)
 
   val spaceShipMesh = SpaceShipMesh(gl, texturedProgram, quadGeometry)
+  val backgroundMesh = BackgroundMesh(gl, backgroundProgram, quadGeometry)
+  val meteorBigMeshArray = arrayListOf(
+      MeteorBigMesh1(gl, texturedProgram, quadGeometry)
+  )
+
   val spaceShipAvatar = SpaceShipAvatar(spaceShipMesh)
 
   val gameObjects = ArrayList<GameObject>()
@@ -28,14 +43,16 @@ class Scene (
     gl.enable(GL.BLEND)
     gl.blendFunc( GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
 
+    gameObjects.add(Background(backgroundMesh))
     gameObjects.add(spaceShipAvatar)
+    gameObjects.add(MeteorBig(meteorBigMeshArray[0]))
 
     addComponentsAndGatherUniforms(*Program.all)
   }
 
   fun resize(gl : WebGL2RenderingContext, canvas : HTMLCanvasElement) {
     gl.viewport(0, 0, canvas.width, canvas.height)
-    camera.setAspectRatio((canvas.width/canvas.height).toFloat())
+    camera.setAspectRatio(canvas.width.toFloat()/canvas.height.toFloat())
   }
 
   @Suppress("UNUSED_PARAMETER")
