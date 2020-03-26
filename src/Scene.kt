@@ -1,12 +1,20 @@
 
 import gameobjects.Background
 import gameobjects.MeteorBig
+import gameobjects.MeteorMed
 import gameobjects.SpaceShipAvatar
-import meshes.*
+import meshes.BackgroundMesh
+import meshes.BoomMesh
+import meshes.LaserMesh
+import meshes.SpaceShipMesh
+import meshes.meteor.*
 import org.w3c.dom.HTMLCanvasElement
 import vision.gears.webglmath.UniformProvider
 import vision.gears.webglmath.Vec2
+import vision.gears.webglmath.Vec3
 import kotlin.js.Date
+import kotlin.math.PI
+import kotlin.random.Random
 import org.khronos.webgl.WebGLRenderingContext as GL
 
 class Scene (
@@ -23,19 +31,7 @@ class Scene (
 
   val quadGeometry = TexturedQuadGeometry(gl)
 
-  val spaceShipMeshArray = arrayListOf(
-          SpaceShipMesh2(gl, texturedProgram, quadGeometry)
-  )
-  val backgroundMesh = BackgroundMesh(gl, backgroundProgram, quadGeometry)
-  val meteorBigMeshArray = arrayListOf(
-      MeteorBigMesh1(gl, texturedProgram, quadGeometry)
-  )
-  val laserMesh = LaserMesh(gl, texturedProgram, quadGeometry)
-
-  val spaceShipAvatar = SpaceShipAvatar(
-          SpaceShipMesh1(gl, texturedProgram, quadGeometry),
-          laserMesh
-  )
+  val spaceShipAvatar = SpaceShipAvatar(SpaceShipMesh(gl, texturedProgram, quadGeometry))
 
   val gameObjects = ArrayList<GameObject>()
 
@@ -48,9 +44,53 @@ class Scene (
     gl.enable(GL.BLEND)
     gl.blendFunc( GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
 
-    gameObjects.add(Background(backgroundMesh))
+    Mesh.add("background", BackgroundMesh(gl, backgroundProgram, quadGeometry))
+
+    Mesh.add("meteor_big_1", MeteorBigMesh1(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_2", MeteorBigMesh2(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_3", MeteorBigMesh3(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_4", MeteorBigMesh4(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_5", MeteorBigMesh5(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_6", MeteorBigMesh6(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_7", MeteorBigMesh7(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_big_8", MeteorBigMesh8(gl, texturedProgram, quadGeometry))
+
+    Mesh.add("meteor_med_1", MeteorMedMesh1(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_med_2", MeteorMedMesh2(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_med_3", MeteorMedMesh3(gl, texturedProgram, quadGeometry))
+    Mesh.add("meteor_med_4", MeteorMedMesh4(gl, texturedProgram, quadGeometry))
+
+    Mesh.add("laser", LaserMesh(gl, texturedProgram, quadGeometry))
+    Mesh.add("boom", BoomMesh(gl, texturedProgram, quadGeometry))
+
+    gameObjects.add(Background(Mesh.get("background")))
+
+    val randomCoord : () -> Float = { (Random.nextFloat() - 0.5f) * 6.0f }
+
+    var randomPosition : () -> Vec3 = {
+      Vec3(randomCoord(), randomCoord(), 0.0f)
+    }
+
+    for (i in 0..10) {
+      if (Random.nextBoolean())
+        gameObjects.add(
+                MeteorBig(
+                        Mesh.get("meteor_big_" + Random.nextInt(1, 9)),
+                        randomPosition(),
+                        Random.nextFloat() % (PI.toFloat() * 2)
+                )
+        )
+      else
+        gameObjects.add(
+                MeteorMed(
+                        Mesh.get("meteor_med_" + Random.nextInt(1, 5)),
+                        randomPosition(),
+                        Random.nextFloat() % (PI.toFloat() * 2)
+                )
+        )
+    }
+
     gameObjects.add(spaceShipAvatar)
-    gameObjects.add(MeteorBig(meteorBigMeshArray[0]))
 
     addComponentsAndGatherUniforms(*Program.all)
   }
@@ -70,10 +110,11 @@ class Scene (
     gl.clear(GL.COLOR_BUFFER_BIT or GL.DEPTH_BUFFER_BIT)
 
     val gameObjectsToAdd = ArrayList<GameObject>();
+    val gameObjectsToRemove = ArrayList<GameObject>();
 
     gameObjects.forEach {
       if(!it.interact(dt, t, keysPressed, gameObjects, mousePosition, gameObjectsToAdd))
-        gameObjects.remove(it)
+        gameObjectsToRemove.add(it)
     }
     gameObjects.forEach { it.update() }
     camera.position.set(spaceShipAvatar.position.xy)
@@ -81,6 +122,7 @@ class Scene (
     gameObjects.forEach { it.draw(camera) }
 
     gameObjects.addAll(gameObjectsToAdd)
+    gameObjects.removeAll(gameObjectsToRemove)
 
     timeAtLastFrame = Date().getTime()
   }

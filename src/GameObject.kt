@@ -1,4 +1,5 @@
 
+import gameobjects.Background
 import vision.gears.webglmath.Mat4
 import vision.gears.webglmath.UniformProvider
 import vision.gears.webglmath.Vec2
@@ -37,5 +38,15 @@ open class GameObject(
                 .translate(position)
     }
 
+    fun hit(other : GameObject): Boolean
+    {
+        if (other is Background)
+            return false
 
+        val r1 = if (scale.x > scale.y) scale.x else scale.y
+        val r2 = if (other.scale.x > other.scale.y) other.scale.x else other.scale.y
+        val d = (position - other.position).length()
+
+        return r1 + r2 > d;
+    }
 }

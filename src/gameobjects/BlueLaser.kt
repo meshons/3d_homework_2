@@ -8,13 +8,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class BlueLaser(
-        mesh: Mesh,
         position : Vec3 = Vec3.zeros.clone(),
         roll : Float = 0.0f,
         private var direction : Float = 0.0f,
         private var lifeTime : Float = 1.0f,
-        scale : Vec3 = Vec3(0.0125f, 0.05f, 0.0f)
-) : GameObject(mesh, position, roll, scale) {
+        scale : Vec3 = Vec3(0.0125f, 0.05f, 0.0f),
+        mesh: Mesh = Mesh.get("laser")
+        ) : GameObject(mesh, position, roll, scale) {
 
     init {
         addComponentsAndGatherUniforms(mesh)
@@ -32,6 +32,12 @@ class BlueLaser(
         if (lifeTime < 0.0f)
             return false;
 
+        var hit = false
+        gameObjects.forEach {
+            if (it != this && it !is SpaceShipAvatar && it !is Boom && hit(it))
+                hit = true
+        }
+
         if (t % 0.2f >= 0.1f)
             offset.x = 0.5f
         else
@@ -42,6 +48,6 @@ class BlueLaser(
 
         lifeTime -= dt;
 
-        return true;
+        return !hit;
     }
 }

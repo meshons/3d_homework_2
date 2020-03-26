@@ -1,4 +1,4 @@
-package meshes
+package meshes.meteor
 
 import Mesh
 import Program
@@ -7,13 +7,13 @@ import TexturedMaterial
 import WebGL2RenderingContext
 import vision.gears.webglmath.Geometry
 
-class SpaceShipMesh1(
+class MeteorBigMesh6(
         gl : WebGL2RenderingContext,
         program : Program,
         geometry: Geometry,
         material: TexturedMaterial = TexturedMaterial(
                 program,
-                Texture2D(gl, "media/SpaceShooterRedux/PNG/playerShip2_orange.png")
+                Texture2D(gl, "media/SpaceShooterRedux/PNG/Meteors/meteorGrey_big2.png")
         )
 ) : Mesh(material, geometry){
 

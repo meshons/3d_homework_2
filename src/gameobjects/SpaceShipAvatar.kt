@@ -2,7 +2,6 @@ package gameobjects
 
 import GameObject
 import Mesh
-import meshes.LaserMesh
 import vision.gears.webglmath.Vec2
 import vision.gears.webglmath.Vec3
 import kotlin.math.PI
@@ -12,7 +11,6 @@ import kotlin.math.sin
 
 class SpaceShipAvatar(
         mesh: Mesh,
-        val laserMesh: LaserMesh,
         position : Vec3 = Vec3.zeros.clone(),
         roll : Float = 0.0f,
         scale : Vec3 = Vec3(0.1f, 0.1f, 0.0f)
@@ -30,7 +28,6 @@ class SpaceShipAvatar(
 
     fun shoot(): BlueLaser {
         return BlueLaser(
-                laserMesh,
                 position - Vec3(cos(direction)*0.1f, sin(direction)*0.1f, 0.0f),
                 roll,
                 direction,
