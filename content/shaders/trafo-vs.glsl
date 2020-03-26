@@ -2,8 +2,11 @@
 
 in vec4 vertexPosition;
 in vec2 vertexTexCoord;
+
 uniform struct{
 	mat4 modelMatrix;
+    vec2 offset;
+    vec2 size;
 } gameObject;
 
 uniform struct{
@@ -14,5 +17,5 @@ out vec2 tex;
 
 void main(void) {
   gl_Position = vertexPosition * gameObject.modelMatrix * camera.viewProjMatrix;
-  tex = vertexTexCoord;
+  tex = vertexTexCoord * gameObject.size + gameObject.offset;
 }

@@ -1,11 +1,12 @@
 package gameobjects
 
 import GameObject
-import meshes.BackgroundMesh
+import Mesh
+import vision.gears.webglmath.Vec2
 import vision.gears.webglmath.Vec3
 
 class Background(
-        mesh: BackgroundMesh,
+        mesh: Mesh,
         position : Vec3 = Vec3.zeros.clone(),
         roll : Float = 0.0f,
         scale : Vec3 = Vec3(0.1f, 0.1f, 0.0f)
@@ -15,11 +16,13 @@ class Background(
         addComponentsAndGatherUniforms(mesh)
     }
 
-    override fun move(
+    override fun interact(
             dt : Float,
             t : Float,
             keysPressed : Set<String>,
-            gameObjects : List<GameObject>
+            gameObjects : ArrayList<GameObject>,
+            mousePosition : Vec2,
+            gameObjectsToAdd : ArrayList<GameObject>
     ) : Boolean {
 
         return true;

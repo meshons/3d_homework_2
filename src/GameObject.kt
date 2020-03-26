@@ -1,6 +1,7 @@
 
 import vision.gears.webglmath.Mat4
 import vision.gears.webglmath.UniformProvider
+import vision.gears.webglmath.Vec2
 import vision.gears.webglmath.Vec3
 
 open class GameObject(
@@ -11,16 +12,20 @@ open class GameObject(
 ) : UniformProvider("gameObject") {
 
     val modelMatrix by Mat4()
+    val offset by Vec2()
+    val size by Vec2(1.0f, 1.0f)
 
     init {
         addComponentsAndGatherUniforms(mesh)
     }
 
-    open fun move(
+    open fun interact(
             dt : Float = 0.016666f,
             t : Float = 0.0f,
             keysPressed : Set<String> = emptySet<String>(),
-            gameObjects : List<GameObject> = emptyList<GameObject>()
+            gameObjects : ArrayList<GameObject> = ArrayList(),
+            mousePosition : Vec2 = Vec2(),
+            gameObjectsToAdd : ArrayList<GameObject> = ArrayList()
     ) : Boolean {
         return true;
     }

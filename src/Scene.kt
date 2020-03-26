@@ -2,11 +2,10 @@
 import gameobjects.Background
 import gameobjects.MeteorBig
 import gameobjects.SpaceShipAvatar
-import meshes.BackgroundMesh
-import meshes.MeteorBigMesh1
-import meshes.SpaceShipMesh
+import meshes.*
 import org.w3c.dom.HTMLCanvasElement
 import vision.gears.webglmath.UniformProvider
+import vision.gears.webglmath.Vec2
 import kotlin.js.Date
 import org.khronos.webgl.WebGLRenderingContext as GL
 
@@ -24,13 +23,19 @@ class Scene (
 
   val quadGeometry = TexturedQuadGeometry(gl)
 
-  val spaceShipMesh = SpaceShipMesh(gl, texturedProgram, quadGeometry)
+  val spaceShipMeshArray = arrayListOf(
+          SpaceShipMesh2(gl, texturedProgram, quadGeometry)
+  )
   val backgroundMesh = BackgroundMesh(gl, backgroundProgram, quadGeometry)
   val meteorBigMeshArray = arrayListOf(
       MeteorBigMesh1(gl, texturedProgram, quadGeometry)
   )
+  val laserMesh = LaserMesh(gl, texturedProgram, quadGeometry)
 
-  val spaceShipAvatar = SpaceShipAvatar(spaceShipMesh)
+  val spaceShipAvatar = SpaceShipAvatar(
+          SpaceShipMesh1(gl, texturedProgram, quadGeometry),
+          laserMesh
+  )
 
   val gameObjects = ArrayList<GameObject>()
 
@@ -56,8 +61,7 @@ class Scene (
   }
 
   @Suppress("UNUSED_PARAMETER")
-  fun update(gl : WebGL2RenderingContext, keysPressed : Set<String>) {
-
+  fun update(gl : WebGL2RenderingContext, keysPressed : Set<String>, mousePosition : Vec2) {
     val dt = (Date().getTime().toFloat() - timeAtLastFrame.toFloat()) / 1000.0f
     val t  = (Date().getTime().toFloat() - timeAtFirstFrame.toFloat()) / 1000.0f    
 
@@ -65,11 +69,18 @@ class Scene (
     gl.clearDepth(1.0f)
     gl.clear(GL.COLOR_BUFFER_BIT or GL.DEPTH_BUFFER_BIT)
 
-    gameObjects.forEach { it.move(dt, t, keysPressed, gameObjects) }
+    val gameObjectsToAdd = ArrayList<GameObject>();
+
+    gameObjects.forEach {
+      if(!it.interact(dt, t, keysPressed, gameObjects, mousePosition, gameObjectsToAdd))
+        gameObjects.remove(it)
+    }
     gameObjects.forEach { it.update() }
     camera.position.set(spaceShipAvatar.position.xy)
     camera.updateViewProjMatrix()
     gameObjects.forEach { it.draw(camera) }
+
+    gameObjects.addAll(gameObjectsToAdd)
 
     timeAtLastFrame = Date().getTime()
   }

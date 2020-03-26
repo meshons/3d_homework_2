@@ -5,6 +5,7 @@ import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
+import vision.gears.webglmath.Vec2
 import kotlin.browser.document
 import kotlin.browser.window
 
@@ -23,6 +24,7 @@ class App(val canvas : HTMLCanvasElement, val overlay : HTMLDivElement) {
   }
 
   val keysPressed = HashSet<String>()
+  val mousePoisition = Vec2()
 
   @Suppress("UNUSED_PARAMETER")
   fun registerEventHandlers() {
@@ -40,16 +42,22 @@ class App(val canvas : HTMLCanvasElement, val overlay : HTMLDivElement) {
       event : MouseEvent ->
       // event.x.toInt()
       // event.y.toInt()
-      undefined
+      keysPressed.add("B")
+      event
     }
 
     canvas.onmousemove = { 
-      event : Event ->
+      event : MouseEvent ->
+      mousePoisition.set(
+              (event.x.toFloat() / canvas.width.toFloat() - 0.5f) * canvas.width.toFloat()/canvas.height.toFloat(),
+              event.y.toFloat() / canvas.height.toFloat() - 0.5f
+      )
       event.stopPropagation()
     }
 
     canvas.onmouseup = { 
       event : Event ->
+      keysPressed.remove("B")
       event // This line is a placeholder for event handling code. It has no effect, but avoids the "unused parameter" warning.
     }
 
@@ -63,7 +71,7 @@ class App(val canvas : HTMLCanvasElement, val overlay : HTMLDivElement) {
   }  
 
   fun update() {
-    scene.update(gl, keysPressed)
+    scene.update(gl, keysPressed, mousePoisition)
     window.requestAnimationFrame { update() }
   }
 }
@@ -75,7 +83,6 @@ external object crypto {
 fun main() {
   val canvas = document.getElementById("canvas") as HTMLCanvasElement
   val overlay = document.getElementById("overlay") as HTMLDivElement
-  overlay.innerHTML = """<font color="red">Space Ship Game</font>"""
 
   try{
     val app = App(canvas, overlay)

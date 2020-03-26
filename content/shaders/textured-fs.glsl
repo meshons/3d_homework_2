@@ -9,7 +9,6 @@ uniform struct {
 	sampler2D colorTexture;
 } material;
 
-
 void main(void) {
   fragmentColor = texture(material.colorTexture, tex);
 }

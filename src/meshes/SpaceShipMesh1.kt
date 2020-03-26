@@ -7,7 +7,7 @@ import TexturedMaterial
 import WebGL2RenderingContext
 import vision.gears.webglmath.Geometry
 
-class SpaceShipMesh(
+class SpaceShipMesh1(
         gl : WebGL2RenderingContext,
         program : Program,
         geometry: Geometry,
